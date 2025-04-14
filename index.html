@@ -9,27 +9,59 @@
 
   <body>
     <header class="main-header">
-      <p class="title">
         <h1>Mind Muscle Connection</h1>
-      </p>
+        <h3>The Ultimate Fitness Database</h3>
     </header>
-    <div id="card-container"></div>
-    <div class="card" style="display: none">
-      <div class="card-content">
-        <h2>TV Show Title</h2>
-        <img src="" alt="TV Show Poster" />
-        <div class="card-desc">
-          <ul>
-            <li>Bullet Point 1</li>
-            <li>Bullet Point 2</li>
-            <li>Bullet Point 3</li>
-          </ul>
+
+    <div class="search-panel">
+      <h2>Search By</h2>
+      <div class="button-row">
+        <button onclick="searchVisible();">Keyword</button>
+        <button onclick="removeLastCard();">Muscle</button>
       </div>
+      <div id="search-container">
+        <input type="text" name="search" placeholder="Search..." id="search-input">
+          <a href="#" class="search-btn">     
+          </a>
       </div>
     </div>
-    <div class="footer">
-      <button onclick="quoteAlert();">Get A Quote!</button>
-      <button onclick="removeLastCard();">Remove A Card!</button>
+
+    
+
+    <div id="card-container">
+      <details class="dropdown">
+        <summary role="button">
+          <a class="dropdown-button">Complexity</a>
+        </summary>
+        <ul>
+          <li><a href="#">Compound</a></li>
+          <li><a href="#">Isolation</a></li>
+      </ul>
+    </details>
+    <details class="dropdown">
+      <summary role="button">
+        <a class="dropdown-button">Equipment Needed</a>
+      </summary>
+      <ul>
+        <li><a href="#">Yes</a></li>
+        <li><a href="#">No</a></li>
+    </ul>
+  </details>
+
     </div>
+    <div class="card-div">
+      <div class="card" style="display: none">
+        <div class="card-content">
+          <h2>Exercise Name</h2>
+          <img src="" alt="Exercise Image" />
+          <div class="card-desc" id="card-desc">
+            <ul>
+            </ul>
+          </div>  
+        </div> 
+      </div>
+    </div>
+    
+    
   </body>
 </html>

@@ -23,66 +23,135 @@
  *
  */
 
-const FRESH_PRINCE_URL =
-  "https://upload.wikimedia.org/wikipedia/en/3/33/Fresh_Prince_S1_DVD.jpg";
-const CURB_POSTER_URL =
-  "https://m.media-amazon.com/images/M/MV5BZDY1ZGM4OGItMWMyNS00MDAyLWE2Y2MtZTFhMTU0MGI5ZDFlXkEyXkFqcGdeQXVyMDc5ODIzMw@@._V1_FMjpg_UX1000_.jpg";
-const EAST_LOS_HIGH_POSTER_URL =
-  "https://static.wikia.nocookie.net/hulu/images/6/64/East_Los_High.jpg";
+// const FRESH_PRINCE_URL =
+//   "https://cdn.jefit.com/assets/img/exercises/gifs/31.gif";
+// const CURB_POSTER_URL =
+//   "https://m.media-amazon.com/images/M/MV5BZDY1ZGM4OGItMWMyNS00MDAyLWE2Y2MtZTFhMTU0MGI5ZDFlXkEyXkFqcGdeQXVyMDc5ODIzMw@@._V1_FMjpg_UX1000_.jpg";
+// const EAST_LOS_HIGH_POSTER_URL =
+//   "https://static.wikia.nocookie.net/hulu/images/6/64/East_Los_High.jpg";
 
 // This is an array of strings (TV show titles)
-let titles = [
-  "Fresh Prince of Bel Air",
-  "Curb Your Enthusiasm",
-  "East Los High",
-];
+// let titles = [
+//   "Dumbbell Incline Bench Press",
+//   "Curb Your Enthusiasm",
+//   "East Los High",
+// ];
+
+let exercises = [
+  {name: "Dumbbell Incline Bench Press", muscles: ["Triceps", "Chest", "Shoulders", "Forearms"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/31.gif"},
+  {name: "Dumbbell Lateral Raise", muscles: ["Shoulders"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/32.gif"}
+]
+let keywordClicked = false;
+const searchInput = document.getElementById("search-input");
+
 // Your final submission should have much more data than this, and
 // you should use more than just an array of strings to store it all.
 
 // This function adds cards the page to display the data in the array
 function showCards() {
   const cardContainer = document.getElementById("card-container");
+  const searchQuery = document.getElementById("search-input").value;
   cardContainer.innerHTML = "";
   const templateCard = document.querySelector(".card");
 
-  for (let i = 0; i < titles.length; i++) {
-    let title = titles[i];
+  for (let i = 0; i < exercises.length; i++) {
+    let exercise = exercises[i];
+    //Converts the text input of search box into a list of lowercase words, delimited by space. Does the same for exercise.name and .muscles while combining them into 1 array
+    const searchQueryFiltered = searchQuery.toLowerCase().split(" ");
+    const keywordList = exercise.name.toLowerCase().split(" ").concat(exercise.muscles.map(x => x.toLowerCase()));
+
+    if (searchQueryFiltered.some(x => keywordList.includes(x)) && searchQueryFiltered != ""){
+      const filters = document.querySelectorAll("details");
+      console.log(filters);
+      for(let j = 0; j < filters.length; j++){
+        filters[i].style.visibility = "visible";
+
+      }
+      const nextCard = templateCard.cloneNode(true); // Copy the template card
+      editCardContent(nextCard, exercise); // Edit title, image, and muscle list
+      cardContainer.appendChild(nextCard); // Add new card to the container
+      nextCard.scrollIntoView();
+    }
 
     // This part of the code doesn't scale very well! After you add your
     // own data, you'll need to do something totally different here.
     let imageURL = "";
-    if (i == 0) {
-      imageURL = FRESH_PRINCE_URL;
-    } else if (i == 1) {
-      imageURL = CURB_POSTER_URL;
-    } else if (i == 2) {
-      imageURL = EAST_LOS_HIGH_POSTER_URL;
-    }
+    // if (i == 0) {
+    //   imageURL = FRESH_PRINCE_URL;
+    // } else if (i == 1) {
+    //   imageURL = CURB_POSTER_URL;
+    // } else if (i == 2) {
+    //   imageURL = EAST_LOS_HIGH_POSTER_URL;
+    // }
 
-    const nextCard = templateCard.cloneNode(true); // Copy the template card
-    editCardContent(nextCard, title, imageURL); // Edit title and image
-    cardContainer.appendChild(nextCard); // Add new card to the container
+    
   }
 }
 
-function editCardContent(card, newTitle, newImageURL) {
+function searchVisible() {
+  const searchBar = document.getElementById("search-container");
+  
+  if (keywordClicked == false){
+    searchBar.classList.remove("search-fadeout");
+    searchBar.style.visibility = "visible";
+    searchBar.classList.add("search-fadein");
+    keywordClicked = true;
+  }
+  else {
+    searchBar.classList.remove("search-fadein");
+    searchBar.classList.add("search-fadeout");
+    searchBar.style.visibility = "hidden";
+    keywordClicked = false;
+  }
+  searchBar.style.animationPlayState = "running";
+}
+
+function editCardContent(card, exercise) {
   card.style.display = "block";
 
   const cardHeader = card.querySelector("h2");
-  cardHeader.textContent = newTitle;
+  cardHeader.textContent = exercise.name;
 
   const cardImage = card.querySelector("img");
-  cardImage.src = newImageURL;
-  cardImage.alt = newTitle + " Poster";
+  cardImage.src = exercise.image;
+  cardImage.alt = exercise.name + " Poster";
+
+  const cardBullets = card.querySelector("ul");
+  
+  
+  for (let i = 0; i < Math.min(exercise.muscles.length, 3); i++) {
+    const newLi = document.createElement('li');
+    newLi.textContent = exercise.muscles[i];
+    card.querySelector("ul").appendChild(newLi);
+  }
+  console.log(card.querySelector("ul").innerHTML);
+  if (exercise.muscles.length > 3){
+    
+    cardBullets.querySelectorAll('li')[0].textContent = exercise.muscles[0];
+    cardBullets.querySelectorAll('li')[1].textContent = exercise.muscles[1];
+    cardBullets.querySelectorAll('li')[2].textContent = "more";
+  }
+
 
   // You can use console.log to help you debug!
   // View the output by right clicking on your website,
   // select "Inspect", then click on the "Console" tab
-  console.log("new card:", newTitle, "- html: ", card);
+  // console.log("new card:", exercise.name, "- html: ", card);
 }
 
 // This calls the addCards() function when the page is first loaded
-document.addEventListener("DOMContentLoaded", showCards);
+// document.addEventListener("DOMContentLoaded", showCards);
+document.addEventListener("DOMContentLoaded", function(){
+  const searchQuery = document.getElementById('search-input');
+
+  if (searchQuery) {
+    searchQuery.addEventListener('input', showCards);
+  } 
+  else {
+    console.error('search-input not found');
+  }
+});
+//document.addEventListener("DOMContentLoaded", toggleVisibility);
 
 function quoteAlert() {
   console.log("Button Clicked!");
