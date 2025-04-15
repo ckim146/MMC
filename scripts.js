@@ -37,10 +37,17 @@
 //   "East Los High",
 // ];
 
-let exercises = [
-  {name: "Dumbbell Incline Bench Press", muscles: ["Triceps", "Chest", "Shoulders", "Forearms"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/31.gif"},
-  {name: "Dumbbell Lateral Raise", muscles: ["Shoulders"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/32.gif"}
+// Map of tags to their text values. Makes it easier to change the text value for all instances of tags amongst exercises
+const filterList = {};
+const exercises = [
+  {name: "Dumbbell Incline Bench Press", muscles: ["Triceps", "Chest", "Shoulders", "Forearms"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/31.gif", tags: ["compound", "yes", "primary"]},
+  {name: "Dumbbell Lateral Raise", muscles: ["Shoulders"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/32.gif", tags: ["isolation", "yes", "accessory"]}
 ]
+const bodyImages = {calves: "https://i.imgur.com/ehVv3sp.png", glutes: "https://i.imgur.com/z3Sbqrm.png", hams: "https://i.imgur.com/oyu1SzQ.png",
+  lats: "https://i.imgur.com/fO9LWqy.png", tris: "https://i.imgur.com/pvOZ5hH.png", abs: "https://i.imgur.com/X9LUAiW.png",
+  biceps: "https://i.imgur.com/yaSl5aZ.png", chest: "https://i.imgur.com/DjigU9J.png", quads: "https://i.imgur.com/RCWfTGP.png",
+  shoulders: "https://i.imgur.com/NMRrN3K.png", front: "https://i.imgur.com/q2a0IAF.png", back: "https://i.imgur.com/Dqu8ZWB.png"
+ }
 let keywordClicked = false;
 const searchInput = document.getElementById("search-input");
 
@@ -49,43 +56,45 @@ const searchInput = document.getElementById("search-input");
 
 // This function adds cards the page to display the data in the array
 function showCards() {
-  const cardContainer = document.getElementById("card-container");
-  const searchQuery = document.getElementById("search-input").value;
+  cardContainer = document.getElementById("card-container");
+  searchQuery = document.getElementById("search-input").value;
+  filters = document.getElementById("filter-sort-panel"); 
   cardContainer.innerHTML = "";
   const templateCard = document.querySelector(".card");
-
+  // turn the map of filters into a single array of filter options
+  const filterListConcat = [];
+  Object.keys(filterList).forEach(key => {
+    if (filterList[key]) {filterListConcat.push(filterList[key].toLowerCase())}
+  });
   for (let i = 0; i < exercises.length; i++) {
     let exercise = exercises[i];
     //Converts the text input of search box into a list of lowercase words, delimited by space. Does the same for exercise.name and .muscles while combining them into 1 array
     const searchQueryFiltered = searchQuery.toLowerCase().split(" ");
     const keywordList = exercise.name.toLowerCase().split(" ").concat(exercise.muscles.map(x => x.toLowerCase()));
-
-    if (searchQueryFiltered.some(x => keywordList.includes(x)) && searchQueryFiltered != ""){
-      const filters = document.querySelectorAll("details");
-      console.log(filters);
-      for(let j = 0; j < filters.length; j++){
-        filters[i].style.visibility = "visible";
-
-      }
+    if ((searchQueryFiltered.some(x => keywordList.includes(x)) && searchQueryFiltered != "") && (filterListConcat.length > 0 ? filterListConcat.some(x => exercise.tags.includes(x)) : true)){
+      // filterComp = document.getElementById('filter-comp');
+      filters.style.display = "flex";
       const nextCard = templateCard.cloneNode(true); // Copy the template card
       editCardContent(nextCard, exercise); // Edit title, image, and muscle list
       cardContainer.appendChild(nextCard); // Add new card to the container
       nextCard.scrollIntoView();
+
     }
-
-    // This part of the code doesn't scale very well! After you add your
-    // own data, you'll need to do something totally different here.
-    let imageURL = "";
-    // if (i == 0) {
-    //   imageURL = FRESH_PRINCE_URL;
-    // } else if (i == 1) {
-    //   imageURL = CURB_POSTER_URL;
-    // } else if (i == 2) {
-    //   imageURL = EAST_LOS_HIGH_POSTER_URL;
-    // }
-
-    
   }
+}
+
+function hideCards (switching) {
+  if (!switching) {
+    filters.style.display = "none ";
+  }
+  cardContainer.innerHTML = "";
+}
+
+function clearFilterSort() {
+  for (let x = 0; x <  filterComp.length-1; x++) {
+    filterList[filterComp[x].textContent] = null;
+  }
+  showCards();
 }
 
 function searchVisible() {
@@ -101,6 +110,7 @@ function searchVisible() {
     searchBar.classList.remove("search-fadein");
     searchBar.classList.add("search-fadeout");
     searchBar.style.visibility = "hidden";
+    hideCards(false);
     keywordClicked = false;
   }
   searchBar.style.animationPlayState = "running";
@@ -124,7 +134,6 @@ function editCardContent(card, exercise) {
     newLi.textContent = exercise.muscles[i];
     card.querySelector("ul").appendChild(newLi);
   }
-  console.log(card.querySelector("ul").innerHTML);
   if (exercise.muscles.length > 3){
     
     cardBullets.querySelectorAll('li')[0].textContent = exercise.muscles[0];
@@ -142,16 +151,46 @@ function editCardContent(card, exercise) {
 // This calls the addCards() function when the page is first loaded
 // document.addEventListener("DOMContentLoaded", showCards);
 document.addEventListener("DOMContentLoaded", function(){
-  const searchQuery = document.getElementById('search-input');
+  const searchQuery = document.getElementById("search-input");
+
+  //Iterates over all filter categories and adds them to the filterList map. 
+  filterComp = document.getElementById("filter-sort-panel").getElementsByClassName("dropdown-button");
+  for (let x = 0; x <  filterComp.length-1; x++) {
+    filterList[filterComp[x].textContent] = null;
+    
+  }
+  //Iterates over all items in all filter categories and adds them to the tags map
+  tagsComp = document.getElementById("filter-sort-panel").getElementsByTagName("details");
+  for (let x = 0; x < tagsComp.length-1; x++) {
+    liComp = tagsComp[x].getElementsByTagName("li");
+    for (let y = 0; y < liComp.length; y++) {
+      
+      liComp[y].addEventListener('click', function(e) {
+        e.preventDefault();
+        let filterCat = e.target.parentElement.parentElement.parentElement.getElementsByClassName("dropdown-button")[0].textContent;
+        //if the filter category does not equal filter selection
+        if (filterList[filterCat] != e.target.textContent){
+          filterList[filterCat] = e.target.textContent
+          showCards();
+        }
+      });
+    }
+    
+    // tagsComp[x].addEventListener('click', showCards)
+    
+  }
 
   if (searchQuery) {
-    searchQuery.addEventListener('input', showCards);
+    searchQuery.addEventListener("input", showCards);
   } 
   else {
-    console.error('search-input not found');
+    console.error("search-input not found");
   }
 });
-//document.addEventListener("DOMContentLoaded", toggleVisibility);
+
+function addFilter(event, filter) {
+  event.preventDefault();
+}
 
 function quoteAlert() {
   console.log("Button Clicked!");
@@ -164,3 +203,47 @@ function removeLastCard() {
   titles.pop(); // Remove last item in titles array
   showCards(); // Call showCards again to refresh
 }
+
+function showMuscles () {
+  musclePanel = document.getElementById("muscle-panel");
+  const frontDiagram = document.getElementById("front-body");
+  const backDiagram = document.getElementById("back-body");
+  const muscleSelectors = musclePanel.getElementsByClassName("muscle-selector");
+  frontDiagram.src = bodyImages.front;
+  backDiagram.src = bodyImages.back;
+  musclePanel.style.visibility = "visible";
+  musclePanel.style.opacity = "1";
+
+  for (let i = 0; i < muscleSelectors.length; i++){
+    console.log(muscleSelectors[i].parentElement.id);
+    if (muscleSelectors[i].parentElement.id == "front-body-panel"){
+      muscleSelectors[i].addEventListener('mousemove', function (e) {
+        //erase numbers from the hover area ID, set image to it
+        let imgURL = e.target.id.replace(/[0-9]/g, '');
+        frontDiagram.src = bodyImages[imgURL];
+      })
+    }
+    
+    if (muscleSelectors[i].parentElement.id == "back-body-panel"){
+      muscleSelectors[i].addEventListener('mousemove', function (e) {
+        //erase numbers from the hover area ID, set image to it
+        let imgURL = e.target.id.replace(/[0-9]/g, '');
+        backDiagram.src = bodyImages[imgURL];
+      })
+    }
+
+    muscleSelectors[i].addEventListener('mouseout', function (e) {
+      //erase numbers from the hover area ID, set image to it
+      frontDiagram.src = bodyImages.front;
+      backDiagram.src = bodyImages.back;
+    })
+  }
+  frontDiagram.scrollIntoView();
+  hideCards(true);
+}
+
+function hideMuscles () {
+  musclePanel.style.visibility = "hidden";
+}
+
+

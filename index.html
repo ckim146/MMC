@@ -13,11 +13,12 @@
         <h3>The Ultimate Fitness Database</h3>
     </header>
 
+    <!--Keyword Search Bar-->
     <div class="search-panel">
       <h2>Search By</h2>
       <div class="button-row">
         <button onclick="searchVisible();">Keyword</button>
-        <button onclick="removeLastCard();">Muscle</button>
+        <button onclick="showMuscles();">Muscle</button>
       </div>
       <div id="search-container">
         <input type="text" name="search" placeholder="Search..." id="search-input">
@@ -26,28 +27,86 @@
       </div>
     </div>
 
-    
+    <div id="muscle-panel">
+      <div id="front-body-panel">
+        <div class="muscle-selector" id="biceps1"></div>
+        <div class="muscle-selector" id="biceps2"></div>
+        <div class="muscle-selector" id="shoulders1"></div>
+        <div class="muscle-selector" id="shoulders2"></div>
+        <div class="muscle-selector" id="chest"></div>
+        <div class="muscle-selector" id="quads1"></div>
+        <div class="muscle-selector" id="quads2"></div>
+        <div class="muscle-selector" id="abs"></div>
+        <img class="muscle-diagram" id="front-body" src="" alt="" />
+        <p></p>
+      </div>
+      <div id="back-body-panel">
+        <div class="muscle-selector" id="tris1"></div>
+        <div class="muscle-selector" id="tris2"></div>
+        <div class="muscle-selector" id="lats1"></div>
+        <div class="muscle-selector" id="lats2"></div>
+        <div class="muscle-selector" id="glutes"></div>
+        <div class="muscle-selector" id="hams1"></div>
+        <div class="muscle-selector" id="hams2"></div>
+        <div class="muscle-selector" id="calves1"></div>
+        <div class="muscle-selector" id="calves2"></div>
+        <img class="muscle-diagram" id="back-body" src="" alt="" />
+      </div>
+    </div>
 
-    <div id="card-container">
-      <details class="dropdown">
+    <!--Panel Containing Filter and Sort buttons-->
+    <div id="filter-sort-panel">
+      <p>Filters:</p>
+      <details class="dropdown" id="filter-comp">
         <summary role="button">
           <a class="dropdown-button">Complexity</a>
         </summary>
         <ul>
           <li><a href="#">Compound</a></li>
           <li><a href="#">Isolation</a></li>
-      </ul>
-    </details>
-    <details class="dropdown">
-      <summary role="button">
-        <a class="dropdown-button">Equipment Needed</a>
-      </summary>
-      <ul>
-        <li><a href="#">Yes</a></li>
-        <li><a href="#">No</a></li>
-    </ul>
-  </details>
+        </ul>
+      </details>
+      <details class="dropdown">
+        <summary role="button">
+          <a class="dropdown-button">Equipment Needed</a>
+        </summary>
+        <ul>
+          <li><a href="#">Yes</a></li>
+          <li><a href="#">No</a></li>
+        </ul>
+      </details>
+      <details class="dropdown">
+        <summary role="button">
+          <a class="dropdown-button">Category</a>
+        </summary>
+        <ul>
+          <li><a href="#">Primary</a></li>
+          <li><a href="#">Accessory</a></li>
+          <li><a href="#">U.S. Army</a></li>
+          <li><a href="#">USCG</a></li>
+          <li><a href="#">USMC</a></li>
+          <li><a href="#">U.S. Navy</a></li>
+        </ul>
+      </details>
 
+      <p>Sort:</p>
+      <details class="dropdown">
+        <summary role="button">
+          <a class="dropdown-button">Sort By</a>
+        </summary>
+        <ul>
+          <li><a href="#">Name (A-Z)</a></li>
+          <li><a href="#">Name (Z-A)</a></li>
+          <li><a href="#">Muscles Worked (Low to High)</a></li>
+          <li><a href="#">Muscles Worked (High to Low)</a></li>
+        </ul>
+      </details>
+
+      <button id="clear-btn" onclick="clearFilterSort();">Clear</button>
+    </div> 
+
+    <!--Exercise Card Template-->
+    <div id="card-container">
     </div>
     <div class="card-div">
       <div class="card" style="display: none">
