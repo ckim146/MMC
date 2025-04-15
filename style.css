@@ -509,10 +509,10 @@ a.dropdown-button:active {
 
 #muscle-panel {
   visibility: hidden;
+  display: flex;
   height: 100%;
   opacity: 0;
   transition: all 1s linear;
-  display: flex;
   justify-content: center;
   margin-left: 20%;
 }
@@ -594,7 +594,7 @@ a.dropdown-button:active {
   rotate: 10deg;
 }
 
-#tris1 {
+#triceps1 {
   width: 3%;
   height: 12%;
   top: 21%;
@@ -602,7 +602,7 @@ a.dropdown-button:active {
   rotate: 15deg;
 }
 
-#tris2 {
+#triceps2 {
   width: 3%;
   height: 12%;
   top: 22%;

@@ -41,10 +41,18 @@
 const filterList = {};
 const exercises = [
   {name: "Dumbbell Incline Bench Press", muscles: ["Triceps", "Chest", "Shoulders", "Forearms"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/31.gif", tags: ["compound", "yes", "primary"]},
-  {name: "Dumbbell Lateral Raise", muscles: ["Shoulders"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/32.gif", tags: ["isolation", "yes", "accessory"]}
+  {name: "Dumbbell Lateral Raise", muscles: ["Shoulders"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/32.gif", tags: ["isolation", "yes", "accessory"]},
+  {name: "Barbell Squat", muscles: ["Quads", "Glutes"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/12.gif", tags: ["compound", "yes", "primary"]},
+  {name: "Cable Seated Row", muscles: ["Lats"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/21.gif", tags: ["isolation", "yes", "primary"]},
+  {name: "Pull Up", muscles: ["Lats", "Shoulders"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/83.gif", tags: ["compound", "yes", "USMC"]},
+  {name: "Push Up", muscles: ["Chest", "Shoulders", "Triceps"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/47.gif", tags: ["compound", "no", "U.S. Army"]},
+  {name: "Sit Up", muscles: ["Abs"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/345.gif", tags: ["isolation", "no", "U.S. Army", "U.S. Navy", "USCG"]},
+  {name: "Barbell Deadlift", muscles: ["Glutes", "Hams", "Lats"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/93.gif", tags: ["compound", "yes", "primary"]},
+  {name: "Barbell Bench Press", muscles: ["Chest", "Shoulders", "Triceps"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/2.gif", tags: ["compound", "yes", "primary"]},
+  {name: "Machine Calf Raise", muscles: ["Calves"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/145.gif", tags: ["isolation", "yes", "accessory"]},
 ]
 const bodyImages = {calves: "https://i.imgur.com/ehVv3sp.png", glutes: "https://i.imgur.com/z3Sbqrm.png", hams: "https://i.imgur.com/oyu1SzQ.png",
-  lats: "https://i.imgur.com/fO9LWqy.png", tris: "https://i.imgur.com/pvOZ5hH.png", abs: "https://i.imgur.com/X9LUAiW.png",
+  lats: "https://i.imgur.com/fO9LWqy.png", triceps: "https://i.imgur.com/pvOZ5hH.png", abs: "https://i.imgur.com/X9LUAiW.png",
   biceps: "https://i.imgur.com/yaSl5aZ.png", chest: "https://i.imgur.com/DjigU9J.png", quads: "https://i.imgur.com/RCWfTGP.png",
   shoulders: "https://i.imgur.com/NMRrN3K.png", front: "https://i.imgur.com/q2a0IAF.png", back: "https://i.imgur.com/Dqu8ZWB.png"
  }
@@ -55,14 +63,15 @@ const searchInput = document.getElementById("search-input");
 // you should use more than just an array of strings to store it all.
 
 // This function adds cards the page to display the data in the array
-function showCards() {
-  cardContainer = document.getElementById("card-container");
+function showCards(muscle=null) {
+  const cardContainer = document.getElementById("card-container");
   searchQuery = document.getElementById("search-input").value;
   filters = document.getElementById("filter-sort-panel"); 
   cardContainer.innerHTML = "";
   const templateCard = document.querySelector(".card");
   // turn the map of filters into a single array of filter options
   const filterListConcat = [];
+  console.log(muscle);
   Object.keys(filterList).forEach(key => {
     if (filterList[key]) {filterListConcat.push(filterList[key].toLowerCase())}
   });
@@ -71,23 +80,34 @@ function showCards() {
     //Converts the text input of search box into a list of lowercase words, delimited by space. Does the same for exercise.name and .muscles while combining them into 1 array
     const searchQueryFiltered = searchQuery.toLowerCase().split(" ");
     const keywordList = exercise.name.toLowerCase().split(" ").concat(exercise.muscles.map(x => x.toLowerCase()));
-    if ((searchQueryFiltered.some(x => keywordList.includes(x)) && searchQueryFiltered != "") && (filterListConcat.length > 0 ? filterListConcat.some(x => exercise.tags.includes(x)) : true)){
+    console.log(filterListConcat);
+    const includesFilter = filterListConcat.length > 0 ? filterListConcat.some(x => exercise.tags.includes(x)) : true
+
+    //If the exercise name or exercises contain one of the words typed in the search bar and if its tags match one of the filters
+    if ((searchQueryFiltered.some(x => keywordList.includes(x)) && searchQueryFiltered != "") 
+        && (includesFilter) || ((muscle ? keywordList.includes(muscle) : false) && includesFilter)){
       // filterComp = document.getElementById('filter-comp');
       filters.style.display = "flex";
       const nextCard = templateCard.cloneNode(true); // Copy the template card
       editCardContent(nextCard, exercise); // Edit title, image, and muscle list
       cardContainer.appendChild(nextCard); // Add new card to the container
       nextCard.scrollIntoView();
-
     }
   }
 }
 
 function hideCards (switching) {
+  filters = document.getElementById("filter-sort-panel"); 
+  cardContainer = document.getElementById("card-container");
+  searchBar = document.getElementById("search-container");
   if (!switching) {
     filters.style.display = "none ";
   }
+  searchBar.style.visibility = "hidden";
+  searchBar.classList.remove("search-fadein");
+  searchBar.classList.add("search-fadeout");
   cardContainer.innerHTML = "";
+  keywordClicked = false;
 }
 
 function clearFilterSort() {
@@ -98,7 +118,9 @@ function clearFilterSort() {
 }
 
 function searchVisible() {
-  const searchBar = document.getElementById("search-container");
+  hideMuscles();
+  hideCards(true);
+  searchBar = document.getElementById("search-container");
   
   if (keywordClicked == false){
     searchBar.classList.remove("search-fadeout");
@@ -205,17 +227,17 @@ function removeLastCard() {
 }
 
 function showMuscles () {
-  musclePanel = document.getElementById("muscle-panel");
+  const musclePanel = document.getElementById("muscle-panel");
   const frontDiagram = document.getElementById("front-body");
   const backDiagram = document.getElementById("back-body");
   const muscleSelectors = musclePanel.getElementsByClassName("muscle-selector");
   frontDiagram.src = bodyImages.front;
   backDiagram.src = bodyImages.back;
+  musclePanel.style.display = "flex";
   musclePanel.style.visibility = "visible";
-  musclePanel.style.opacity = "1";
+  musclePanel.style.opacity = "1";  
 
   for (let i = 0; i < muscleSelectors.length; i++){
-    console.log(muscleSelectors[i].parentElement.id);
     if (muscleSelectors[i].parentElement.id == "front-body-panel"){
       muscleSelectors[i].addEventListener('mousemove', function (e) {
         //erase numbers from the hover area ID, set image to it
@@ -232,18 +254,25 @@ function showMuscles () {
       })
     }
 
+    muscleSelectors[i].addEventListener('click', function (e) {
+      showCards(e.target.id.replace(/[0-9]/g, ''));
+    })
+
     muscleSelectors[i].addEventListener('mouseout', function (e) {
       //erase numbers from the hover area ID, set image to it
       frontDiagram.src = bodyImages.front;
       backDiagram.src = bodyImages.back;
     })
   }
-  frontDiagram.scrollIntoView();
+  
   hideCards(true);
 }
 
 function hideMuscles () {
+  const musclePanel = document.getElementById("muscle-panel");
   musclePanel.style.visibility = "hidden";
+  musclePanel.style.display = "none";
+  musclePanel.style.opacity = 0;
 }
 
 
