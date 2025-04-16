@@ -58,6 +58,7 @@ const bodyImages = {calves: "https://i.imgur.com/ehVv3sp.png", glutes: "https://
  }
 let keywordClicked = false;
 const searchInput = document.getElementById("search-input");
+let currMuscle = null;
 
 // Your final submission should have much more data than this, and
 // you should use more than just an array of strings to store it all.
@@ -65,28 +66,34 @@ const searchInput = document.getElementById("search-input");
 // This function adds cards the page to display the data in the array
 function showCards(muscle=null) {
   const cardContainer = document.getElementById("card-container");
-  searchQuery = document.getElementById("search-input").value;
+  const searchQuery = document.getElementById("search-input").value;
   filters = document.getElementById("filter-sort-panel"); 
   cardContainer.innerHTML = "";
   const templateCard = document.querySelector(".card");
   // turn the map of filters into a single array of filter options
-  const filterListConcat = [];
-  console.log(muscle);
+  let filterListConcat = [];
+  let searchQueryFiltered = []
+  let keywordList = [];
+
   Object.keys(filterList).forEach(key => {
     if (filterList[key]) {filterListConcat.push(filterList[key].toLowerCase())}
   });
   for (let i = 0; i < exercises.length; i++) {
     let exercise = exercises[i];
     //Converts the text input of search box into a list of lowercase words, delimited by space. Does the same for exercise.name and .muscles while combining them into 1 array
-    const searchQueryFiltered = searchQuery.toLowerCase().split(" ");
-    const keywordList = exercise.name.toLowerCase().split(" ").concat(exercise.muscles.map(x => x.toLowerCase()));
-    console.log(filterListConcat);
-    const includesFilter = filterListConcat.length > 0 ? filterListConcat.some(x => exercise.tags.includes(x)) : true
-
+    searchQueryFiltered = searchQuery.toLowerCase().split(" ");
+    keywordList = exercise.name.toLowerCase().split(" ").concat(exercise.muscles.map(x => x.toLowerCase()));
+    // const includesFilter = filterListConcat.length > 0 ? filterListConcat.some(x => exercise.tags.includes(x)) : true;
+    const includesFilter = filterListConcat.length > 0 ? filterListConcat.every(x => exercise.tags.includes(x)) : true;
+    const includesKeyword = searchQueryFiltered.some(x => keywordList.includes(x));
+    const queryNotEmpty = muscle ? true : searchQueryFiltered != "";
+    const includesMuscle = muscle ? keywordList.includes(muscle) : false;
+    let entireQuery = false;
+    
+    
     //If the exercise name or exercises contain one of the words typed in the search bar and if its tags match one of the filters
-    if ((searchQueryFiltered.some(x => keywordList.includes(x)) && searchQueryFiltered != "") 
-        && (includesFilter) || ((muscle ? keywordList.includes(muscle) : false) && includesFilter)){
-      // filterComp = document.getElementById('filter-comp');
+    if ((includesKeyword && queryNotEmpty && includesFilter) || (includesMuscle && includesFilter)){
+      console.log(includesFilter);
       filters.style.display = "flex";
       const nextCard = templateCard.cloneNode(true); // Copy the template card
       editCardContent(nextCard, exercise); // Edit title, image, and muscle list
@@ -100,6 +107,7 @@ function hideCards (switching) {
   filters = document.getElementById("filter-sort-panel"); 
   cardContainer = document.getElementById("card-container");
   searchBar = document.getElementById("search-container");
+  cardContainer.innerHTML = "";
   if (!switching) {
     filters.style.display = "none ";
   }
@@ -111,15 +119,17 @@ function hideCards (switching) {
 }
 
 function clearFilterSort() {
-  for (let x = 0; x <  filterComp.length-1; x++) {
+  const musclePanel = document.getElementById("muscle-panel");
+  for (let x = 0; x <  filterComp.length; x++) {
     filterList[filterComp[x].textContent] = null;
   }
-  showCards();
+  if (musclePanel.style.visibility == "visible"){showCards(currMuscle);}
+  else {showCards}
 }
 
 function searchVisible() {
   hideMuscles();
-  hideCards(true);
+  // hideCards(true);
   searchBar = document.getElementById("search-container");
   
   if (keywordClicked == false){
@@ -177,28 +187,30 @@ document.addEventListener("DOMContentLoaded", function(){
 
   //Iterates over all filter categories and adds them to the filterList map. 
   filterComp = document.getElementById("filter-sort-panel").getElementsByClassName("dropdown-button");
-  for (let x = 0; x <  filterComp.length-1; x++) {
+  for (let x = 0; x <  filterComp.length; x++) {
     filterList[filterComp[x].textContent] = null;
     
   }
   //Iterates over all items in all filter categories and adds them to the tags map
   tagsComp = document.getElementById("filter-sort-panel").getElementsByTagName("details");
-  for (let x = 0; x < tagsComp.length-1; x++) {
+  for (let x = 0; x < tagsComp.length; x++) {
     liComp = tagsComp[x].getElementsByTagName("li");
     for (let y = 0; y < liComp.length; y++) {
       
       liComp[y].addEventListener('click', function(e) {
         e.preventDefault();
+        const musclePanel = document.getElementById("muscle-panel");
         let filterCat = e.target.parentElement.parentElement.parentElement.getElementsByClassName("dropdown-button")[0].textContent;
-        //if the filter category does not equal filter selection
+        //if the filter category's current option does not equal the filter selection, change to the selection
         if (filterList[filterCat] != e.target.textContent){
           filterList[filterCat] = e.target.textContent
-          showCards();
+          //if the muscle panel is visible, do not reset muscle
+          if (musclePanel.style.visibility == "visible"){showCards(currMuscle);}
+          else {showCards}
         }
       });
     }
     
-    // tagsComp[x].addEventListener('click', showCards)
     
   }
 
@@ -214,34 +226,39 @@ function addFilter(event, filter) {
   event.preventDefault();
 }
 
-function quoteAlert() {
-  console.log("Button Clicked!");
-  alert(
-    "I guess I can kiss heaven goodbye, because it got to be a sin to look this good!"
-  );
-}
+// function quoteAlert() {
+//   console.log("Button Clicked!");
+//   alert(
+//     "I guess I can kiss heaven goodbye, because it got to be a sin to look this good!"
+//   );
+// }
 
-function removeLastCard() {
-  titles.pop(); // Remove last item in titles array
-  showCards(); // Call showCards again to refresh
-}
+// function removeLastCard() {
+//   titles.pop(); // Remove last item in titles array
+//   showCards(); // Call showCards again to refresh
+// }
 
 function showMuscles () {
   const musclePanel = document.getElementById("muscle-panel");
   const frontDiagram = document.getElementById("front-body");
   const backDiagram = document.getElementById("back-body");
   const muscleSelectors = musclePanel.getElementsByClassName("muscle-selector");
+  const muscleName = document.getElementById("muscle-name-display");
   frontDiagram.src = bodyImages.front;
   backDiagram.src = bodyImages.back;
   musclePanel.style.display = "flex";
   musclePanel.style.visibility = "visible";
-  musclePanel.style.opacity = "1";  
+  musclePanel.style.opacity = "1";
+  const searchQuery = document.getElementById("search-input");
+  searchQuery.value = "";
+  console.log(searchQuery.value);
 
   for (let i = 0; i < muscleSelectors.length; i++){
     if (muscleSelectors[i].parentElement.id == "front-body-panel"){
       muscleSelectors[i].addEventListener('mousemove', function (e) {
         //erase numbers from the hover area ID, set image to it
         let imgURL = e.target.id.replace(/[0-9]/g, '');
+        muscleName.innerHTML = imgURL;
         frontDiagram.src = bodyImages[imgURL];
       })
     }
@@ -250,16 +267,19 @@ function showMuscles () {
       muscleSelectors[i].addEventListener('mousemove', function (e) {
         //erase numbers from the hover area ID, set image to it
         let imgURL = e.target.id.replace(/[0-9]/g, '');
+        muscleName.innerHTML = imgURL;
         backDiagram.src = bodyImages[imgURL];
       })
     }
 
     muscleSelectors[i].addEventListener('click', function (e) {
+      currMuscle = e.target.id.replace(/[0-9]/g, '');
       showCards(e.target.id.replace(/[0-9]/g, ''));
     })
 
     muscleSelectors[i].addEventListener('mouseout', function (e) {
       //erase numbers from the hover area ID, set image to it
+      muscleName.innerHTML = "";
       frontDiagram.src = bodyImages.front;
       backDiagram.src = bodyImages.back;
     })
@@ -270,6 +290,7 @@ function showMuscles () {
 
 function hideMuscles () {
   const musclePanel = document.getElementById("muscle-panel");
+  currMuscle = null;
   musclePanel.style.visibility = "hidden";
   musclePanel.style.display = "none";
   musclePanel.style.opacity = 0;
