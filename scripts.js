@@ -44,7 +44,7 @@ const exercises = [
   {name: "Dumbbell Lateral Raise", muscles: ["Shoulders"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/32.gif", tags: ["isolation", "yes", "accessory"]},
   {name: "Barbell Squat", muscles: ["Quads", "Glutes"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/12.gif", tags: ["compound", "yes", "primary"]},
   {name: "Cable Seated Row", muscles: ["Lats"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/21.gif", tags: ["isolation", "yes", "primary"]},
-  {name: "Pull Up", muscles: ["Lats", "Shoulders"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/83.gif", tags: ["compound", "yes", "USMC"]},
+  {name: "Pull Up", muscles: ["Lats", "Shoulders", "Biceps"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/83.gif", tags: ["compound", "yes", "USMC"]},
   {name: "Push Up", muscles: ["Chest", "Shoulders", "Triceps"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/47.gif", tags: ["compound", "no", "U.S. Army"]},
   {name: "Sit Up", muscles: ["Abs"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/345.gif", tags: ["isolation", "no", "U.S. Army", "U.S. Navy", "USCG"]},
   {name: "Barbell Deadlift", muscles: ["Glutes", "Hams", "Lats"], image: "https://cdn.jefit.com/assets/img/exercises/gifs/93.gif", tags: ["compound", "yes", "primary"]},
@@ -68,16 +68,20 @@ function showCards(muscle=null) {
   const cardContainer = document.getElementById("card-container");
   const searchQuery = document.getElementById("search-input").value;
   filters = document.getElementById("filter-sort-panel"); 
+  const filterListDisplay = document.getElementById("filter-list");
   cardContainer.innerHTML = "";
   const templateCard = document.querySelector(".card");
   // turn the map of filters into a single array of filter options
   let filterListConcat = [];
   let searchQueryFiltered = []
   let keywordList = [];
+  console.log("show car runs");
 
   Object.keys(filterList).forEach(key => {
     if (filterList[key]) {filterListConcat.push(filterList[key].toLowerCase())}
   });
+  filterListDisplay.innerHTML = filterListConcat.toString();
+
   for (let i = 0; i < exercises.length; i++) {
     let exercise = exercises[i];
     //Converts the text input of search box into a list of lowercase words, delimited by space. Does the same for exercise.name and .muscles while combining them into 1 array
@@ -88,7 +92,7 @@ function showCards(muscle=null) {
     const includesKeyword = searchQueryFiltered.some(x => keywordList.includes(x));
     const queryNotEmpty = muscle ? true : searchQueryFiltered != "";
     const includesMuscle = muscle ? keywordList.includes(muscle) : false;
-    let entireQuery = false;
+    console.log(includesFilter, includesKeyword, queryNotEmpty, includesMuscle);
     
     
     //If the exercise name or exercises contain one of the words typed in the search bar and if its tags match one of the filters
@@ -124,7 +128,7 @@ function clearFilterSort() {
     filterList[filterComp[x].textContent] = null;
   }
   if (musclePanel.style.visibility == "visible"){showCards(currMuscle);}
-  else {showCards}
+  else {showCards();}
 }
 
 function searchVisible() {
@@ -200,13 +204,13 @@ document.addEventListener("DOMContentLoaded", function(){
       liComp[y].addEventListener('click', function(e) {
         e.preventDefault();
         const musclePanel = document.getElementById("muscle-panel");
-        let filterCat = e.target.parentElement.parentElement.parentElement.getElementsByClassName("dropdown-button")[0].textContent;
+        let filterCat = e.target.parentElement.parentElement.parentElement.getElementsByClassName("dropdown-button")[0];
         //if the filter category's current option does not equal the filter selection, change to the selection
-        if (filterList[filterCat] != e.target.textContent){
-          filterList[filterCat] = e.target.textContent
+        if (filterList[filterCat.textContent] != e.target.textContent){
+          filterList[filterCat.textContent] = e.target.textContent
           //if the muscle panel is visible, do not reset muscle
           if (musclePanel.style.visibility == "visible"){showCards(currMuscle);}
-          else {showCards}
+          else {showCards();}
         }
       });
     }
